@@ -1,44 +1,47 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Xadrez Online</title>
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Xadrez Online</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
-    <div id="app">
-        <header>
-            <h1>Xadrez Online</h1>
-            <div class="controls">
-                <button id="create-game">Criar Partida</button>
-                <input id="join-link" placeholder="Link da partida" />
-                <button id="join-game">Entrar</button>
-                <label>Tempo:
-                    <input type="number" id="hours" min="0" max="12" value="0">h
-                    <input type="number" id="minutes" min="0" max="59" value="10">m
-                    <input type="number" id="seconds" min="0" max="59" value="0">s
-                </label>
-                <label>Tema Tabuleiro:
-                    <select id="board-theme"></select>
-                </label>
-                <label>Tema Peças:
-                    <select id="piece-theme"></select>
-                </label>
-            </div>
-        </header>
-        <main>
-            <div id="chess-container">
-                <canvas id="chessboard"></canvas>
-            </div>
-            <div id="game-info">
-                <div id="timers">
-                    <span id="white-timer">00:10:00</span> - <span id="black-timer">00:10:00</span>
-                </div>
-                <div id="invite-link"></div>
-            </div>
-        </main>
-    </div>
-    <script src="client.js"></script>
+  <div id="app">
+    <header>
+      <h1>Xadrez Online</h1>
+      <div class="controls">
+        <button id="create-game">Criar Partida</button>
+        <input id="join-link" placeholder="Link da partida" />
+        <button id="join-game">Entrar</button>
+        <label>Tempo:
+          <input type="number" id="hours" min="0" max="12" value="0">h
+          <input type="number" id="minutes" min="0" max="59" value="10">m
+          <input type="number" id="seconds" min="0" max="59" value="0">s
+        </label>
+        <label>Tema Tabuleiro:
+          <select id="board-theme"></select>
+        </label>
+        <label>Tema Peças:
+          <select id="piece-theme"></select>
+        </label>
+      </div>
+    </header>
+    <main>
+      <div id="chess-container">
+        <canvas id="chessboard"></canvas>
+      </div>
+      <div id="game-info">
+        <div id="timers">
+          <span id="white-timer">00:10:00</span> - <span id="black-timer">00:10:00</span>
+        </div>
+        <div id="invite-link"></div>
+      </div>
+    </main>
+  </div>
+  <script src="client.js"></script>
 </body>
+
 </html>

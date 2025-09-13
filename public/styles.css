@@ -1,77 +1,91 @@
 body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background: #222;
-    color: #eee;
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #222;
+  color: #eee;
 }
+
 #app {
-    max-width: 100vw;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
+  max-width: 100vw;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
+
 header {
-    padding: 1em;
-    background: #333;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+  padding: 1em;
+  background: #333;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
+
 .controls {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1em;
-    margin-top: 1em;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1em;
+  margin-top: 1em;
 }
+
 main {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
+
 #chess-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 90vw;
-    height: 90vh;
-    max-width: 90vmin;
-    max-height: 90vmin;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 90vw;
+  height: 90vh;
+  max-width: 90vmin;
+  max-height: 90vmin;
 }
+
 #chessboard {
-    width: 100%;
-    height: 100%;
-    aspect-ratio: 1/1;
-    background: #fff;
-    border-radius: 1em;
-    box-shadow: 0 0 20px #000a;
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 1/1;
+  background: #fff;
+  border-radius: 1em;
+  box-shadow: 0 0 20px #000a;
 }
+
 #game-info {
-    margin-top: 2em;
-    text-align: center;
+  margin-top: 2em;
+  text-align: center;
 }
+
 #timers {
-    font-size: 1.5em;
-    margin-bottom: 1em;
+  font-size: 1.5em;
+  margin-bottom: 1em;
 }
+
 #invite-link {
-    margin-top: 1em;
-    color: #0f0;
-    word-break: break-all;
+  margin-top: 1em;
+  color: #0f0;
+  word-break: break-all;
 }
-select, input, button {
-    font-size: 1em;
-    border-radius: 0.3em;
-    border: none;
-    padding: 0.3em 0.6em;
-}
+
+select,
+input,
 button {
-    background: #444;
-    color: #fff;
-    cursor: pointer;
-    transition: background 0.2s;
+  font-size: 1em;
+  border-radius: 0.3em;
+  border: none;
+  padding: 0.3em 0.6em;
 }
+
+button {
+  background: #444;
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
 button:hover {
-    background: #666;
+  background: #666;
 }
