@@ -155,58 +155,8 @@ window.addEventListener('DOMContentLoaded', () => {
   });
 
   // Função de validação de movimento (regras básicas)
-  function isValidMove(board, sy, sx, dy, dx) {
-    const piece = board[sy][sx];
-    if (!piece) return false;
-    const isWhite = piece === piece.toUpperCase();
-    const target = board[dy][dx];
-    if (target && (target === target.toUpperCase()) === isWhite) return false; // Não captura peça da mesma cor
-    const dyAbs = Math.abs(dy - sy);
-    const dxAbs = Math.abs(dx - sx);
-    switch (piece.toLowerCase()) {
-      case 'p': // Peão
-        if (isWhite) {
-          if (sx === dx && dy === sy - 1 && !target) return true; // anda 1
-          if (sx === dx && sy === 6 && dy === 4 && !target && !board[5][sx]) return true; // anda 2
-          if (dxAbs === 1 && dy === sy - 1 && target && target === target.toLowerCase()) return true; // captura
-        } else {
-          if (sx === dx && dy === sy + 1 && !target) return true;
-          if (sx === dx && sy === 1 && dy === 3 && !target && !board[2][sx]) return true;
-          if (dxAbs === 1 && dy === sy + 1 && target && target === target.toUpperCase()) return true;
-        }
-        return false;
-      case 'n': // Cavalo
-        return (dxAbs === 2 && dyAbs === 1) || (dxAbs === 1 && dyAbs === 2);
-      case 'b': // Bispo
-        if (dxAbs !== dyAbs) return false;
-        return isPathClear(board, sy, sx, dy, dx);
-      case 'r': // Torre
-        if (sx !== dx && sy !== dy) return false;
-        return isPathClear(board, sy, sx, dy, dx);
-      case 'q': // Rainha
-        if (dxAbs === dyAbs || sx === dx || sy === dy) return isPathClear(board, sy, sx, dy, dx);
-        return false;
-      case 'k': // Rei
-        if (dxAbs <= 1 && dyAbs <= 1) return true;
-        // TODO: roque
-        return false;
-      default:
-        return false;
-    }
-  }
-
-  // Verifica se o caminho está livre (para bispo, torre, rainha)
-  function isPathClear(board, sy, sx, dy, dx) {
-    const stepY = Math.sign(dy - sy);
-    const stepX = Math.sign(dx - sx);
-    let y = sy + stepY, x = sx + stepX;
-    while (y !== dy || x !== dx) {
-      if (board[y][x]) return false;
-      if (y !== dy) y += stepY;
-      if (x !== dx) x += stepX;
-    }
-    return true;
-  }
+  // ...existing code...
+  // As funções isValidMove e isPathClear agora estão em chess-rules.js para facilitar testes.
 
   loadPieceImages(resizeBoard);
 
