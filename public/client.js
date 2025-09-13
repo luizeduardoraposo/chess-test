@@ -51,16 +51,53 @@ function resizeBoard() {
 }
 window.addEventListener('resize', resizeBoard);
 
+
+// Posição inicial do tabuleiro (FEN simplificado)
+let board = [
+  ['r','n','b','q','k','b','n','r'],
+  ['p','p','p','p','p','p','p','p'],
+  ['','','','','','','',''],
+  ['','','','','','','',''],
+  ['','','','','','','',''],
+  ['','','','','','','',''],
+  ['P','P','P','P','P','P','P','P'],
+  ['R','N','B','Q','K','B','N','R']
+];
+
+// Mapeamento de peças para Unicode
+const pieceUnicode = {
+  K: '\u2654', Q: '\u2655', R: '\u2656', B: '\u2657', N: '\u2658', P: '\u2659',
+  k: '\u265A', q: '\u265B', r: '\u265C', b: '\u265D', n: '\u265E', p: '\u265F'
+};
+
 function drawBoard() {
   const size = canvas.width;
   const square = size / 8;
+  ctx.clearRect(0, 0, size, size);
   for (let y = 0; y < 8; y++) {
     for (let x = 0; x < 8; x++) {
       ctx.fillStyle = (x + y) % 2 === 0 ? boardTheme.light : boardTheme.dark;
       ctx.fillRect(x * square, y * square, square, square);
+      // Desenhar peça se houver
+      const piece = board[y][x];
+      if (piece) {
+        ctx.font = `${Math.floor(square * 0.8)}px serif`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillStyle = /[A-Z]/.test(piece) ? '#fff' : '#222';
+        ctx.strokeStyle = '#000';
+        ctx.lineWidth = 2;
+        const code = pieceUnicode[piece];
+        if (code) {
+          // Desenhar contorno para melhor contraste
+          ctx.strokeText(String.fromCharCode(parseInt(code.replace('\\u',''),16)),
+            x * square + square/2, y * square + square/2);
+          ctx.fillText(String.fromCharCode(parseInt(code.replace('\\u',''),16)),
+            x * square + square/2, y * square + square/2);
+        }
+      }
     }
   }
-  // ...desenhar peças depois...
 }
 
 resizeBoard();
