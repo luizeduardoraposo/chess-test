@@ -1,33 +1,47 @@
 
 // ...definições iniciais...
 
-// Controle de seleção de peça
-let selected = null;
 
-function onBoardClick(evt) {
+// Drag and drop de peças
+let dragging = null;
+let dragOffset = null;
+let dragPiece = null;
+
+canvas.addEventListener('mousedown', function(evt) {
   const rect = canvas.getBoundingClientRect();
   const size = canvas.width;
   const square = size / 8;
   const x = Math.floor((evt.clientX - rect.left) / square);
   const y = Math.floor((evt.clientY - rect.top) / square);
-  if (selected) {
-    // Move a peça selecionada para o novo local (sem validação de regras)
-    const [sy, sx] = selected;
-    if (sy !== y || sx !== x) {
-      board[y][x] = board[sy][sx];
-      board[sy][sx] = '';
-    }
-    selected = null;
-    drawBoard();
-  } else if (board[y][x]) {
-    selected = [y, x];
-    drawBoard();
+  if (board[y][x]) {
+    dragging = [y, x];
+    dragPiece = board[y][x];
+    dragOffset = [evt.clientX - (rect.left + x * square), evt.clientY - (rect.top + y * square)];
   }
-}
+});
 
-// Adiciona o evento após todas as definições
-window.addEventListener('DOMContentLoaded', () => {
-  canvas.addEventListener('mousedown', onBoardClick);
+canvas.addEventListener('mousemove', function(evt) {
+  if (dragging) {
+    drawBoard(evt);
+  }
+});
+
+canvas.addEventListener('mouseup', function(evt) {
+  if (!dragging) return;
+  const rect = canvas.getBoundingClientRect();
+  const size = canvas.width;
+  const square = size / 8;
+  const x = Math.floor((evt.clientX - rect.left) / square);
+  const y = Math.floor((evt.clientY - rect.top) / square);
+  const [sy, sx] = dragging;
+  if ((sy !== y || sx !== x) && board[sy][sx]) {
+    board[y][x] = board[sy][sx];
+    board[sy][sx] = '';
+  }
+  dragging = null;
+  dragPiece = null;
+  dragOffset = null;
+  drawBoard();
 });
 
 // Chess client logic
@@ -109,27 +123,32 @@ function loadPieceImages(callback) {
   }
 }
 
-function drawBoard() {
+function drawBoard(evt) {
   const size = canvas.width;
   const square = size / 8;
   ctx.clearRect(0, 0, size, size);
   for (let y = 0; y < 8; y++) {
     for (let x = 0; x < 8; x++) {
-      // Destacar seleção
-      if (selected && selected[0] === y && selected[1] === x) {
-        ctx.fillStyle = '#ff0';
-        ctx.fillRect(x * square, y * square, square, square);
-      } else {
-        ctx.fillStyle = (x + y) % 2 === 0 ? boardTheme.light : boardTheme.dark;
-        ctx.fillRect(x * square, y * square, square, square);
-      }
+      ctx.fillStyle = (x + y) % 2 === 0 ? boardTheme.light : boardTheme.dark;
+      ctx.fillRect(x * square, y * square, square, square);
       // Desenhar peça SVG se houver
       const piece = board[y][x];
-      if (piece) {
+      if (piece && (!dragging || dragging[0] !== y || dragging[1] !== x)) {
         if (pieceImages[piece] && pieceImages[piece].complete && pieceImages[piece].naturalWidth > 0) {
           ctx.drawImage(pieceImages[piece], x * square + square*0.1, y * square + square*0.1, square*0.8, square*0.8);
         }
       }
+    }
+  }
+  // Desenhar peça arrastando
+  if (dragging && dragPiece && evt) {
+    const rect = canvas.getBoundingClientRect();
+    const mx = evt.clientX - rect.left - dragOffset[0] + square*0.1;
+    const my = evt.clientY - rect.top - dragOffset[1] + square*0.1;
+    if (pieceImages[dragPiece] && pieceImages[dragPiece].complete && pieceImages[dragPiece].naturalWidth > 0) {
+      ctx.globalAlpha = 0.7;
+      ctx.drawImage(pieceImages[dragPiece], mx, my, square*0.8, square*0.8);
+      ctx.globalAlpha = 1.0;
     }
   }
 }
