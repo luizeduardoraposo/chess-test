@@ -185,36 +185,39 @@ window.addEventListener('DOMContentLoaded', () => {
           }
         }
         // TODO: en passant, xeque, xeque-mate
-        // Verifica se o movimento é um roque válido
-        function isCastlingMove(sy, sx, dy, dx) {
-          // Branco
-          if (sy === 7 && sx === 4 && dy === 7 && (dx === 6 || dx === 2) && board[sy][sx] === 'K') {
-            if (whiteKingMoved) return false;
-            if (dx === 6 && !whiteRookHMoved && board[7][5] === '' && board[7][6] === '' && board[7][7] === 'R') return true;
-            if (dx === 2 && !whiteRookAMoved && board[7][1] === '' && board[7][2] === '' && board[7][3] === '' && board[7][0] === 'R') return true;
-          }
-          // Preto
-          if (sy === 0 && sx === 4 && dy === 0 && (dx === 6 || dx === 2) && board[sy][sx] === 'k') {
-            if (blackKingMoved) return false;
-            if (dx === 6 && !blackRookHMoved && board[0][5] === '' && board[0][6] === '' && board[0][7] === 'r') return true;
-            if (dx === 2 && !blackRookAMoved && board[0][1] === '' && board[0][2] === '' && board[0][3] === '' && board[0][0] === 'r') return true;
-          }
-          return false;
-        }
-        // Função para promover peão ao chegar na última fileira
-        function promoverPeao(y, x) {
-          // Simples: sempre promove para rainha
-          board[y][x] = board[y][x] === 'P' ? 'Q' : 'q';
-          drawBoard();
-          // Para escolha de peça, implementar UI futura
-        }
       }
     }
+
     dragging = null;
     dragPiece = null;
     dragOffset = null;
     drawBoard();
   });
+
+  // Verifica se o movimento é um roque válido
+  function isCastlingMove(sy, sx, dy, dx) {
+    // Branco
+    if (sy === 7 && sx === 4 && dy === 7 && (dx === 6 || dx === 2) && board[sy][sx] === 'K') {
+      if (whiteKingMoved) return false;
+      if (dx === 6 && !whiteRookHMoved && board[7][5] === '' && board[7][6] === '' && board[7][7] === 'R') return true;
+      if (dx === 2 && !whiteRookAMoved && board[7][1] === '' && board[7][2] === '' && board[7][3] === '' && board[7][0] === 'R') return true;
+    }
+    // Preto
+    if (sy === 0 && sx === 4 && dy === 0 && (dx === 6 || dx === 2) && board[sy][sx] === 'k') {
+      if (blackKingMoved) return false;
+      if (dx === 6 && !blackRookHMoved && board[0][5] === '' && board[0][6] === '' && board[0][7] === 'r') return true;
+      if (dx === 2 && !blackRookAMoved && board[0][1] === '' && board[0][2] === '' && board[0][3] === '' && board[0][0] === 'r') return true;
+    }
+    return false;
+  }
+
+  // Função para promover peão ao chegar na última fileira
+  function promoverPeao(y, x) {
+    // Simples: sempre promove para rainha
+    board[y][x] = board[y][x] === 'P' ? 'Q' : 'q';
+    drawBoard();
+    // Para escolha de peça, implementar UI futura
+  }
 
   // Função de validação de movimento (regras básicas)
   // ...existing code...
