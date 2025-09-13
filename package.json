@@ -13,5 +13,10 @@
   },
   "devDependencies": {
     "jest": "^30.1.3"
+  },
+  "jest": {
+    "testMatch": [
+      "<rootDir>/public/chess.test.js"
+    ]
   }
 }

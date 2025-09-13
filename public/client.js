@@ -71,6 +71,8 @@ window.addEventListener('DOMContentLoaded', () => {
   let blackRookAMoved = false, blackRookHMoved = false;
   // Controle de turnos: 'w' para branco, 'b' para preto
   let turn = 'w';
+  // Controle de en passant: armazena coluna do peão vulnerável e linha alvo
+  let enPassant = null;
 
   // Carregar imagens SVG das peças
   const pieceImages = {};
@@ -158,47 +160,103 @@ window.addEventListener('DOMContentLoaded', () => {
         drawBoard();
         return;
       }
-      if (isValidMove(board, sy, sx, y, x) || isCastlingMove(sy, sx, y, x)) {
-        // Roque
+      // Verifica se é captura en passant
+      let enPassantCapture = false;
+      if (board[sy][sx].toLowerCase() === 'p' && sx !== x && board[y][x] === '' && enPassant && enPassant[0] === y && enPassant[1] === x) {
+        enPassantCapture = true;
+      }
+      if (isValidMove(board, sy, sx, y, x) || isCastlingMove(sy, sx, y, x) || enPassantCapture) {
+        // Simula o movimento para checar se deixa o próprio rei em xeque
+        let boardCopy = board.map(row => row.slice());
         if (isCastlingMove(sy, sx, y, x)) {
           if (board[sy][sx] === 'K' && sy === 7 && sx === 4 && y === 7 && (x === 6 || x === 2)) {
-            // Branco
-            if (x === 6) { // Roque curto
+            if (x === 6) {
+              boardCopy[7][6] = 'K'; boardCopy[7][5] = 'R'; boardCopy[7][4] = ''; boardCopy[7][7] = '';
+            } else if (x === 2) {
+              boardCopy[7][2] = 'K'; boardCopy[7][3] = 'R'; boardCopy[7][4] = ''; boardCopy[7][0] = '';
+            }
+          } else if (board[sy][sx] === 'k' && sy === 0 && sx === 4 && y === 0 && (x === 6 || x === 2)) {
+            if (x === 6) {
+              boardCopy[0][6] = 'k'; boardCopy[0][5] = 'r'; boardCopy[0][4] = ''; boardCopy[0][7] = '';
+            } else if (x === 2) {
+              boardCopy[0][2] = 'k'; boardCopy[0][3] = 'r'; boardCopy[0][4] = ''; boardCopy[0][0] = '';
+            }
+          }
+        } else if (enPassantCapture) {
+          boardCopy[y][x] = boardCopy[sy][sx];
+          boardCopy[sy][sx] = '';
+          boardCopy[sy + (turn === 'w' ? 1 : -1)][x] = '';
+        } else {
+          boardCopy[y][x] = boardCopy[sy][sx];
+          boardCopy[sy][sx] = '';
+        }
+        const isWhite = board[sy][sx] === board[sy][sx].toUpperCase();
+        if ((isWhite && window.isKingInCheck(boardCopy, true)) || (!isWhite && window.isKingInCheck(boardCopy, false))) {
+          alert('Movimento ilegal: não pode deixar o próprio rei em xeque!');
+          dragging = null;
+          dragPiece = null;
+          dragOffset = null;
+          drawBoard();
+          return;
+        }
+        // Movimento é legal, aplica de verdade
+        if (isCastlingMove(sy, sx, y, x)) {
+          if (board[sy][sx] === 'K' && sy === 7 && sx === 4 && y === 7 && (x === 6 || x === 2)) {
+            if (x === 6) {
               board[7][6] = 'K'; board[7][5] = 'R'; board[7][4] = ''; board[7][7] = '';
               whiteKingMoved = true; whiteRookHMoved = true;
-            } else if (x === 2) { // Roque longo
+            } else if (x === 2) {
               board[7][2] = 'K'; board[7][3] = 'R'; board[7][4] = ''; board[7][0] = '';
               whiteKingMoved = true; whiteRookAMoved = true;
             }
           } else if (board[sy][sx] === 'k' && sy === 0 && sx === 4 && y === 0 && (x === 6 || x === 2)) {
-            // Preto
-            if (x === 6) { // Roque curto
+            if (x === 6) {
               board[0][6] = 'k'; board[0][5] = 'r'; board[0][4] = ''; board[0][7] = '';
               blackKingMoved = true; blackRookHMoved = true;
-            } else if (x === 2) { // Roque longo
+            } else if (x === 2) {
               board[0][2] = 'k'; board[0][3] = 'r'; board[0][4] = ''; board[0][0] = '';
               blackKingMoved = true; blackRookAMoved = true;
             }
           }
-        } else {
-          // Movimento normal
+        } else if (enPassantCapture) {
           board[y][x] = board[sy][sx];
           board[sy][sx] = '';
-          // Atualizar flags de movimento para roque
+          board[sy + (turn === 'w' ? 1 : -1)][x] = '';
+        } else {
+          board[y][x] = board[sy][sx];
+          board[sy][sx] = '';
           if (board[y][x] === 'K') whiteKingMoved = true;
           if (board[y][x] === 'k') blackKingMoved = true;
           if (board[y][x] === 'R' && sy === 7 && sx === 0) whiteRookAMoved = true;
           if (board[y][x] === 'R' && sy === 7 && sx === 7) whiteRookHMoved = true;
           if (board[y][x] === 'r' && sy === 0 && sx === 0) blackRookAMoved = true;
           if (board[y][x] === 'r' && sy === 0 && sx === 7) blackRookHMoved = true;
-          // Promoção de peão
           if ((board[y][x] === 'P' && y === 0) || (board[y][x] === 'p' && y === 7)) {
             promoverPeao(y, x);
           }
-  }
-  // Alterna o turno após movimento válido
-  turn = turn === 'w' ? 'b' : 'w';
-        // TODO: en passant, xeque, xeque-mate
+        }
+        if (board[y][x].toLowerCase() === 'p' && Math.abs(y - sy) === 2) {
+          enPassant = [(y + sy) / 2, x];
+        } else {
+          enPassant = null;
+        }
+        // Após o movimento, verifica xeque e xeque-mate
+        const nextIsWhite = turn === 'b';
+        if (window.isCheckmate(board, nextIsWhite)) {
+          drawBoard();
+          setTimeout(() => {
+            alert('Xeque-mate! ' + (nextIsWhite ? 'Branco' : 'Preto') + ' venceu!');
+          }, 100);
+          // Opcional: bloquear mais jogadas
+          turn = null;
+          return;
+        } else if (window.isKingInCheck(board, nextIsWhite)) {
+          drawBoard();
+          setTimeout(() => {
+            alert('Xeque em ' + (nextIsWhite ? 'branco' : 'preto') + '!');
+          }, 100);
+        }
+        turn = turn === 'w' ? 'b' : 'w';
       }
     }
 

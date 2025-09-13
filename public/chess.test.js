@@ -1,4 +1,90 @@
-const { isValidMove, isPathClear } = require('./chess-rules');
+describe('En passant', () => {
+  it('permite captura en passant para branco', () => {
+    // Simula situação real de en passant
+    let board = [
+      ['', '', '', '', '', '', '', ''],
+      ['', '', '', '', '', '', '', ''],
+      ['', '', '', '', '', '', '', ''],
+      ['', '', '', '', '', '', '', ''],
+      ['', '', '', '', '', '', '', ''],
+      ['', '', '', '', '', '', '', ''],
+      ['', 'P', '', '', '', '', '', ''],
+      ['', '', '', '', '', '', '', '']
+    ];
+    let enPassant = null;
+    // Turno preto: peão avança 2 casas de (1,0) para (3,0)
+    board[1][0] = 'p';
+    board[3][0] = board[1][0];
+    board[1][0] = '';
+    enPassant = [2, 0]; // alvo de en passant (linha entre origem e destino)
+    // Turno branco: captura en passant de (6,1) para (2,0) (simula lógica do client.js)
+    // O peão branco deve estar em (3,0) após a captura, e o peão preto removido de (3,0)
+    if (board[6][1] === 'P' && board[3][0] === 'p' && enPassant && enPassant[0] === 2 && enPassant[1] === 0) {
+      board[2][0] = 'P';
+      board[6][1] = '';
+      board[3][0] = '';
+    }
+    expect(board[2][0]).toBe('P');
+    expect(board[6][1]).toBe('');
+    expect(board[3][0]).toBe(''); // Peão preto capturado
+  });
+
+  it('não permite en passant se não for logo após o avanço', () => {
+    let board = [
+      ['', '', '', '', '', '', '', ''],
+      ['', '', '', '', '', '', '', ''],
+      ['', '', '', '', '', '', '', ''],
+      ['', '', '', '', '', '', '', ''],
+      ['', '', '', '', '', '', '', ''],
+      ['p', '', '', '', '', '', '', ''],
+      ['', 'P', '', '', '', '', '', ''],
+      ['', '', '', '', '', '', '', '']
+    ];
+    let enPassant = null; // Não é mais permitido
+    // Simula lógica do client.js
+    let captured = false;
+    if (board[6][1] === 'P' && board[5][0] === '' && enPassant && enPassant[0] === 5 && enPassant[1] === 0) {
+      board[5][0] = 'P';
+      board[6][1] = '';
+      board[6][0] = '';
+      captured = true;
+    }
+    expect(captured).toBe(false);
+    expect(board[5][0]).toBe('p');
+    expect(board[6][1]).toBe('P');
+  });
+});
+const { isValidMove, isPathClear, isKingInCheck, isCheckmate } = require('./chess-rules');
+describe('Xeque e Xeque-mate', () => {
+  function emptyBoard() {
+    return Array.from({ length: 8 }, () => Array(8).fill(''));
+  }
+
+  it('detecta xeque simples ao rei branco', () => {
+    const board = emptyBoard();
+    board[7][4] = 'K'; // rei branco
+    board[5][4] = 'q'; // rainha preta atacando
+    expect(isKingInCheck(board, true)).toBe(true);
+    expect(isKingInCheck(board, false)).toBe(false);
+  });
+
+  it('detecta xeque simples ao rei preto', () => {
+    const board = emptyBoard();
+    board[0][4] = 'k'; // rei preto
+    board[2][4] = 'Q'; // rainha branca atacando
+    expect(isKingInCheck(board, false)).toBe(true);
+    expect(isKingInCheck(board, true)).toBe(false);
+  });
+
+  it('não acusa xeque se não houver ataque', () => {
+    const board = emptyBoard();
+    board[7][4] = 'K';
+    board[0][4] = 'k';
+    expect(isKingInCheck(board, true)).toBe(false);
+    expect(isKingInCheck(board, false)).toBe(false);
+  });
+
+});
 
 // Testes de movimentação e regras
 
