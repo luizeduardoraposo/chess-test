@@ -50,5 +50,9 @@ function isPathClear(board, sy, sx, dy, dx) {
   return true;
 }
 
-window.isValidMove = isValidMove;
-window.isPathClear = isPathClear;
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
+  module.exports = { isValidMove, isPathClear };
+} else {
+  window.isValidMove = isValidMove;
+  window.isPathClear = isPathClear;
+}
