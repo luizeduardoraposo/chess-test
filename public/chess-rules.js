@@ -50,4 +50,5 @@ function isPathClear(board, sy, sx, dy, dx) {
   return true;
 }
 
-module.exports = { isValidMove, isPathClear };
+window.isValidMove = isValidMove;
+window.isPathClear = isPathClear;
