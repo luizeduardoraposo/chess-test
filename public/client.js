@@ -1,3 +1,35 @@
+
+// ...definições iniciais...
+
+// Controle de seleção de peça
+let selected = null;
+
+function onBoardClick(evt) {
+  const rect = canvas.getBoundingClientRect();
+  const size = canvas.width;
+  const square = size / 8;
+  const x = Math.floor((evt.clientX - rect.left) / square);
+  const y = Math.floor((evt.clientY - rect.top) / square);
+  if (selected) {
+    // Move a peça selecionada para o novo local (sem validação de regras)
+    const [sy, sx] = selected;
+    if (sy !== y || sx !== x) {
+      board[y][x] = board[sy][sx];
+      board[sy][sx] = '';
+    }
+    selected = null;
+    drawBoard();
+  } else if (board[y][x]) {
+    selected = [y, x];
+    drawBoard();
+  }
+}
+
+// Adiciona o evento após todas as definições
+window.addEventListener('DOMContentLoaded', () => {
+  canvas.addEventListener('mousedown', onBoardClick);
+});
+
 // Chess client logic
 const socket = new WebSocket('ws://' + window.location.hostname + ':3001');
 
@@ -7,9 +39,9 @@ const boardThemes = [
   { name: 'Verde', light: '#b6e3b6', dark: '#3a5d3a' },
   { name: 'Escuro', light: '#444', dark: '#222' }
 ];
+// Só SVG
 const pieceThemes = [
-  { name: 'Padrão', set: 'default' },
-  { name: 'Minimalista', set: 'minimal' }
+  { name: 'SVG', set: 'svg' }
 ];
 
 let boardTheme = boardThemes[0];
@@ -35,10 +67,7 @@ boardThemeSelect.addEventListener('change', e => {
   boardTheme = boardThemes[parseInt(e.target.value)];
   drawBoard();
 });
-pieceThemeSelect.addEventListener('change', e => {
-  pieceTheme = pieceThemes[parseInt(e.target.value)];
-  drawBoard();
-});
+// Não há troca de tema, só SVG
 
 const canvas = document.getElementById('chessboard');
 const ctx = canvas.getContext('2d');
@@ -50,7 +79,6 @@ function resizeBoard() {
   drawBoard();
 }
 window.addEventListener('resize', resizeBoard);
-
 
 // Posição inicial do tabuleiro (FEN simplificado)
 let board = [
@@ -64,11 +92,22 @@ let board = [
   ['R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R']
 ];
 
-// Mapeamento de peças para Unicode
-const pieceUnicode = {
-  K: '\u2654', Q: '\u2655', R: '\u2656', B: '\u2657', N: '\u2658', P: '\u2659',
-  k: '\u265A', q: '\u265B', r: '\u265C', b: '\u265D', n: '\u265E', p: '\u265F'
+// Carregar imagens SVG das peças
+const pieceImages = {};
+const pieceFiles = {
+  K: 'wK.svg', Q: 'wQ.svg', R: 'wR.svg', B: 'wB.svg', N: 'wN.svg', P: 'wP.svg',
+  k: 'bK.svg', q: 'bQ.svg', r: 'bR.svg', b: 'bB.svg', n: 'bN.svg', p: 'bP.svg'
 };
+function loadPieceImages(callback) {
+  let loaded = 0, total = Object.keys(pieceFiles).length;
+  for (const [piece, file] of Object.entries(pieceFiles)) {
+    const img = new Image();
+    img.onload = () => { loaded++; if (loaded === total && callback) callback(); };
+    img.onerror = () => { loaded++; if (loaded === total && callback) callback(); };
+    img.src = `pieces/${file}`;
+    pieceImages[piece] = img;
+  }
+}
 
 function drawBoard() {
   const size = canvas.width;
@@ -76,31 +115,26 @@ function drawBoard() {
   ctx.clearRect(0, 0, size, size);
   for (let y = 0; y < 8; y++) {
     for (let x = 0; x < 8; x++) {
-      ctx.fillStyle = (x + y) % 2 === 0 ? boardTheme.light : boardTheme.dark;
-      ctx.fillRect(x * square, y * square, square, square);
-      // Desenhar peça se houver
+      // Destacar seleção
+      if (selected && selected[0] === y && selected[1] === x) {
+        ctx.fillStyle = '#ff0';
+        ctx.fillRect(x * square, y * square, square, square);
+      } else {
+        ctx.fillStyle = (x + y) % 2 === 0 ? boardTheme.light : boardTheme.dark;
+        ctx.fillRect(x * square, y * square, square, square);
+      }
+      // Desenhar peça SVG se houver
       const piece = board[y][x];
       if (piece) {
-        ctx.font = `${Math.floor(square * 0.8)}px serif`;
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillStyle = /[A-Z]/.test(piece) ? '#fff' : '#222';
-        ctx.strokeStyle = '#000';
-        ctx.lineWidth = 2;
-        const code = pieceUnicode[piece];
-        if (code) {
-          // Desenhar contorno para melhor contraste
-          ctx.strokeText(String.fromCharCode(parseInt(code.replace('\\u', ''), 16)),
-            x * square + square / 2, y * square + square / 2);
-          ctx.fillText(String.fromCharCode(parseInt(code.replace('\\u', ''), 16)),
-            x * square + square / 2, y * square + square / 2);
+        if (pieceImages[piece] && pieceImages[piece].complete && pieceImages[piece].naturalWidth > 0) {
+          ctx.drawImage(pieceImages[piece], x * square + square*0.1, y * square + square*0.1, square*0.8, square*0.8);
         }
       }
     }
   }
 }
 
-resizeBoard();
+loadPieceImages(resizeBoard);
 
 document.getElementById('create-game').onclick = () => {
   const hours = parseInt(document.getElementById('hours').value) || 0;
