@@ -69,6 +69,8 @@ window.addEventListener('DOMContentLoaded', () => {
   let whiteKingMoved = false, blackKingMoved = false;
   let whiteRookAMoved = false, whiteRookHMoved = false;
   let blackRookAMoved = false, blackRookHMoved = false;
+  // Controle de turnos: 'w' para branco, 'b' para preto
+  let turn = 'w';
 
   // Carregar imagens SVG das peças
   const pieceImages = {};
@@ -146,6 +148,16 @@ window.addEventListener('DOMContentLoaded', () => {
     const y = Math.floor((evt.clientY - rect.top) / square);
     const [sy, sx] = dragging;
     if ((sy !== y || sx !== x) && board[sy][sx]) {
+      // Só permite mover se for o turno correto
+      const piece = board[sy][sx];
+      const isWhite = piece === piece.toUpperCase();
+      if ((turn === 'w' && !isWhite) || (turn === 'b' && isWhite)) {
+        dragging = null;
+        dragPiece = null;
+        dragOffset = null;
+        drawBoard();
+        return;
+      }
       if (isValidMove(board, sy, sx, y, x) || isCastlingMove(sy, sx, y, x)) {
         // Roque
         if (isCastlingMove(sy, sx, y, x)) {
@@ -183,7 +195,9 @@ window.addEventListener('DOMContentLoaded', () => {
           if ((board[y][x] === 'P' && y === 0) || (board[y][x] === 'p' && y === 7)) {
             promoverPeao(y, x);
           }
-        }
+  }
+  // Alterna o turno após movimento válido
+  turn = turn === 'w' ? 'b' : 'w';
         // TODO: en passant, xeque, xeque-mate
       }
     }
