@@ -65,6 +65,10 @@ window.addEventListener('DOMContentLoaded', () => {
     ['P', 'P', 'P', 'P', 'P', 'P', 'P', 'P'],
     ['R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R']
   ];
+  // Flags para roque: se rei ou torres já se moveram
+  let whiteKingMoved = false, blackKingMoved = false;
+  let whiteRookAMoved = false, whiteRookHMoved = false;
+  let blackRookAMoved = false, blackRookHMoved = false;
 
   // Carregar imagens SVG das peças
   const pieceImages = {};
@@ -142,10 +146,68 @@ window.addEventListener('DOMContentLoaded', () => {
     const y = Math.floor((evt.clientY - rect.top) / square);
     const [sy, sx] = dragging;
     if ((sy !== y || sx !== x) && board[sy][sx]) {
-      if (isValidMove(board, sy, sx, y, x)) {
-        board[y][x] = board[sy][sx];
-        board[sy][sx] = '';
-        // TODO: promoção, roque, en passant, xeque, xeque-mate
+      if (isValidMove(board, sy, sx, y, x) || isCastlingMove(sy, sx, y, x)) {
+        // Roque
+        if (isCastlingMove(sy, sx, y, x)) {
+          if (board[sy][sx] === 'K' && sy === 7 && sx === 4 && y === 7 && (x === 6 || x === 2)) {
+            // Branco
+            if (x === 6) { // Roque curto
+              board[7][6] = 'K'; board[7][5] = 'R'; board[7][4] = ''; board[7][7] = '';
+              whiteKingMoved = true; whiteRookHMoved = true;
+            } else if (x === 2) { // Roque longo
+              board[7][2] = 'K'; board[7][3] = 'R'; board[7][4] = ''; board[7][0] = '';
+              whiteKingMoved = true; whiteRookAMoved = true;
+            }
+          } else if (board[sy][sx] === 'k' && sy === 0 && sx === 4 && y === 0 && (x === 6 || x === 2)) {
+            // Preto
+            if (x === 6) { // Roque curto
+              board[0][6] = 'k'; board[0][5] = 'r'; board[0][4] = ''; board[0][7] = '';
+              blackKingMoved = true; blackRookHMoved = true;
+            } else if (x === 2) { // Roque longo
+              board[0][2] = 'k'; board[0][3] = 'r'; board[0][4] = ''; board[0][0] = '';
+              blackKingMoved = true; blackRookAMoved = true;
+            }
+          }
+        } else {
+          // Movimento normal
+          board[y][x] = board[sy][sx];
+          board[sy][sx] = '';
+          // Atualizar flags de movimento para roque
+          if (board[y][x] === 'K') whiteKingMoved = true;
+          if (board[y][x] === 'k') blackKingMoved = true;
+          if (board[y][x] === 'R' && sy === 7 && sx === 0) whiteRookAMoved = true;
+          if (board[y][x] === 'R' && sy === 7 && sx === 7) whiteRookHMoved = true;
+          if (board[y][x] === 'r' && sy === 0 && sx === 0) blackRookAMoved = true;
+          if (board[y][x] === 'r' && sy === 0 && sx === 7) blackRookHMoved = true;
+          // Promoção de peão
+          if ((board[y][x] === 'P' && y === 0) || (board[y][x] === 'p' && y === 7)) {
+            promoverPeao(y, x);
+          }
+        }
+        // TODO: en passant, xeque, xeque-mate
+  // Verifica se o movimento é um roque válido
+  function isCastlingMove(sy, sx, dy, dx) {
+    // Branco
+    if (sy === 7 && sx === 4 && dy === 7 && (dx === 6 || dx === 2) && board[sy][sx] === 'K') {
+      if (whiteKingMoved) return false;
+      if (dx === 6 && !whiteRookHMoved && board[7][5] === '' && board[7][6] === '' && board[7][7] === 'R') return true;
+      if (dx === 2 && !whiteRookAMoved && board[7][1] === '' && board[7][2] === '' && board[7][3] === '' && board[7][0] === 'R') return true;
+    }
+    // Preto
+    if (sy === 0 && sx === 4 && dy === 0 && (dx === 6 || dx === 2) && board[sy][sx] === 'k') {
+      if (blackKingMoved) return false;
+      if (dx === 6 && !blackRookHMoved && board[0][5] === '' && board[0][6] === '' && board[0][7] === 'r') return true;
+      if (dx === 2 && !blackRookAMoved && board[0][1] === '' && board[0][2] === '' && board[0][3] === '' && board[0][0] === 'r') return true;
+    }
+    return false;
+  }
+  // Função para promover peão ao chegar na última fileira
+  function promoverPeao(y, x) {
+    // Simples: sempre promove para rainha
+    board[y][x] = board[y][x] === 'P' ? 'Q' : 'q';
+    drawBoard();
+    // Para escolha de peça, implementar UI futura
+  }
       }
     }
     dragging = null;
