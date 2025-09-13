@@ -1,3 +1,8 @@
+it('permite mover peça para casa vazia', () => {
+  const board = Array.from({ length: 8 }, () => Array(8).fill(''));
+  board[4][4] = 'N';
+  expect(isValidMove(board, 4, 4, 6, 5)).toBe(true); // movimento de cavalo
+});
 const { isValidMove, isPathClear } = require('./chess-rules');
 
 describe('isValidMove', () => {

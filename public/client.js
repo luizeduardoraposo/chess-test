@@ -99,7 +99,7 @@ window.addEventListener('DOMContentLoaded', () => {
         const piece = board[y][x];
         if (piece && (!dragging || dragging[0] !== y || dragging[1] !== x)) {
           if (pieceImages[piece] && pieceImages[piece].complete && pieceImages[piece].naturalWidth > 0) {
-            ctx.drawImage(pieceImages[piece], x * square + square*0.1, y * square + square*0.1, square*0.8, square*0.8);
+            ctx.drawImage(pieceImages[piece], x * square + square * 0.1, y * square + square * 0.1, square * 0.8, square * 0.8);
           }
         }
       }
@@ -107,17 +107,17 @@ window.addEventListener('DOMContentLoaded', () => {
     // Desenhar peça arrastando
     if (dragging && dragPiece && evt) {
       const rect = canvas.getBoundingClientRect();
-      const mx = evt.clientX - rect.left - dragOffset[0] + square*0.1;
-      const my = evt.clientY - rect.top - dragOffset[1] + square*0.1;
+      const mx = evt.clientX - rect.left - dragOffset[0] + square * 0.1;
+      const my = evt.clientY - rect.top - dragOffset[1] + square * 0.1;
       if (pieceImages[dragPiece] && pieceImages[dragPiece].complete && pieceImages[dragPiece].naturalWidth > 0) {
         ctx.globalAlpha = 0.7;
-        ctx.drawImage(pieceImages[dragPiece], mx, my, square*0.8, square*0.8);
+        ctx.drawImage(pieceImages[dragPiece], mx, my, square * 0.8, square * 0.8);
         ctx.globalAlpha = 1.0;
       }
     }
   }
 
-  canvas.addEventListener('mousedown', function(evt) {
+  canvas.addEventListener('mousedown', function (evt) {
     const rect = canvas.getBoundingClientRect();
     const size = canvas.width;
     const square = size / 8;
@@ -130,14 +130,14 @@ window.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  canvas.addEventListener('mousemove', function(evt) {
+  canvas.addEventListener('mousemove', function (evt) {
     if (dragging) {
       drawBoard(evt);
     }
   });
 
 
-  canvas.addEventListener('mouseup', function(evt) {
+  canvas.addEventListener('mouseup', function (evt) {
     if (!dragging) return;
     const rect = canvas.getBoundingClientRect();
     const size = canvas.width;
@@ -185,29 +185,29 @@ window.addEventListener('DOMContentLoaded', () => {
           }
         }
         // TODO: en passant, xeque, xeque-mate
-  // Verifica se o movimento é um roque válido
-  function isCastlingMove(sy, sx, dy, dx) {
-    // Branco
-    if (sy === 7 && sx === 4 && dy === 7 && (dx === 6 || dx === 2) && board[sy][sx] === 'K') {
-      if (whiteKingMoved) return false;
-      if (dx === 6 && !whiteRookHMoved && board[7][5] === '' && board[7][6] === '' && board[7][7] === 'R') return true;
-      if (dx === 2 && !whiteRookAMoved && board[7][1] === '' && board[7][2] === '' && board[7][3] === '' && board[7][0] === 'R') return true;
-    }
-    // Preto
-    if (sy === 0 && sx === 4 && dy === 0 && (dx === 6 || dx === 2) && board[sy][sx] === 'k') {
-      if (blackKingMoved) return false;
-      if (dx === 6 && !blackRookHMoved && board[0][5] === '' && board[0][6] === '' && board[0][7] === 'r') return true;
-      if (dx === 2 && !blackRookAMoved && board[0][1] === '' && board[0][2] === '' && board[0][3] === '' && board[0][0] === 'r') return true;
-    }
-    return false;
-  }
-  // Função para promover peão ao chegar na última fileira
-  function promoverPeao(y, x) {
-    // Simples: sempre promove para rainha
-    board[y][x] = board[y][x] === 'P' ? 'Q' : 'q';
-    drawBoard();
-    // Para escolha de peça, implementar UI futura
-  }
+        // Verifica se o movimento é um roque válido
+        function isCastlingMove(sy, sx, dy, dx) {
+          // Branco
+          if (sy === 7 && sx === 4 && dy === 7 && (dx === 6 || dx === 2) && board[sy][sx] === 'K') {
+            if (whiteKingMoved) return false;
+            if (dx === 6 && !whiteRookHMoved && board[7][5] === '' && board[7][6] === '' && board[7][7] === 'R') return true;
+            if (dx === 2 && !whiteRookAMoved && board[7][1] === '' && board[7][2] === '' && board[7][3] === '' && board[7][0] === 'R') return true;
+          }
+          // Preto
+          if (sy === 0 && sx === 4 && dy === 0 && (dx === 6 || dx === 2) && board[sy][sx] === 'k') {
+            if (blackKingMoved) return false;
+            if (dx === 6 && !blackRookHMoved && board[0][5] === '' && board[0][6] === '' && board[0][7] === 'r') return true;
+            if (dx === 2 && !blackRookAMoved && board[0][1] === '' && board[0][2] === '' && board[0][3] === '' && board[0][0] === 'r') return true;
+          }
+          return false;
+        }
+        // Função para promover peão ao chegar na última fileira
+        function promoverPeao(y, x) {
+          // Simples: sempre promove para rainha
+          board[y][x] = board[y][x] === 'P' ? 'Q' : 'q';
+          drawBoard();
+          // Para escolha de peça, implementar UI futura
+        }
       }
     }
     dragging = null;
