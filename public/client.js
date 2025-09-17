@@ -1,15 +1,19 @@
 
-
+window.addEventListener('DOMContentLoaded', () => {
+// Evento principal: inicializa o cliente quando o DOM está pronto
 window.addEventListener('DOMContentLoaded', () => {
   // WebSocket deve ser declarado aqui para garantir que está disponível para todos os handlers do DOMContentLoaded
+  // Conexão WebSocket para comunicação com o servidor
   const socket = new WebSocket('ws://' + window.location.hostname + ':3001');
   // Drag and drop de peças
+  // Variáveis para controle de drag and drop das peças
   let dragging = null;
   let dragOffset = null;
   let dragPiece = null;
 
 
 
+  // Temas de tabuleiro disponíveis
   const boardThemes = [
     { name: 'Clássico', light: '#f0d9b5', dark: '#b58863' },
     { name: 'Azul', light: '#aadfff', dark: '#005577' },
@@ -17,24 +21,29 @@ window.addEventListener('DOMContentLoaded', () => {
     { name: 'Escuro', light: '#444', dark: '#222' }
   ];
   // Só SVG
+  // Temas de peças disponíveis (apenas SVG)
   const pieceThemes = [
     { name: 'SVG', set: 'svg' }
   ];
 
+  // Tema selecionado para tabuleiro e peças
   let boardTheme = boardThemes[0];
   let pieceTheme = pieceThemes[0];
 
+  // Elementos DOM para seleção de tema e tabuleiro
   const boardThemeSelect = document.getElementById('board-theme');
   const pieceThemeSelect = document.getElementById('piece-theme');
   const canvas = document.getElementById('chessboard');
   const ctx = canvas.getContext('2d');
 
+  // Preenche selects de tema do tabuleiro
   boardThemes.forEach((theme, i) => {
     const opt = document.createElement('option');
     opt.value = i;
     opt.textContent = theme.name;
     boardThemeSelect.appendChild(opt);
   });
+  // Preenche selects de tema das peças
   pieceThemes.forEach((theme, i) => {
     const opt = document.createElement('option');
     opt.value = i;
@@ -42,12 +51,14 @@ window.addEventListener('DOMContentLoaded', () => {
     pieceThemeSelect.appendChild(opt);
   });
 
+  // Troca de tema do tabuleiro
   boardThemeSelect.addEventListener('change', e => {
     boardTheme = boardThemes[parseInt(e.target.value)];
     drawBoard();
   });
   // Não há troca de tema, só SVG
 
+  // Redimensiona o tabuleiro conforme o tamanho da janela
   function resizeBoard() {
     const size = Math.floor(0.9 * Math.min(window.innerWidth, window.innerHeight));
     canvas.width = size;
@@ -56,6 +67,7 @@ window.addEventListener('DOMContentLoaded', () => {
   }
   window.addEventListener('resize', resizeBoard);
 
+  // Posição inicial do tabuleiro (FEN simplificado)
   // Posição inicial do tabuleiro (FEN simplificado)
   let board = [
     ['r', 'n', 'b', 'q', 'k', 'b', 'n', 'r'],
@@ -68,20 +80,25 @@ window.addEventListener('DOMContentLoaded', () => {
     ['R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R']
   ];
   // Flags para roque: se rei ou torres já se moveram
+  // Flags para roque: se rei ou torres já se moveram
   let whiteKingMoved = false, blackKingMoved = false;
   let whiteRookAMoved = false, whiteRookHMoved = false;
   let blackRookAMoved = false, blackRookHMoved = false;
   // Controle de turnos: 'w' para branco, 'b' para preto
+  // Controle de turnos: 'w' para branco, 'b' para preto
   let turn = 'w';
+  // Controle de en passant: armazena coluna do peão vulnerável e linha alvo
   // Controle de en passant: armazena coluna do peão vulnerável e linha alvo
   let enPassant = null;
 
+  // Carregar imagens SVG das peças
   // Carregar imagens SVG das peças
   const pieceImages = {};
   const pieceFiles = {
     K: 'wK.svg', Q: 'wQ.svg', R: 'wR.svg', B: 'wB.svg', N: 'wN.svg', P: 'wP.svg',
     k: 'bK.svg', q: 'bQ.svg', r: 'bR.svg', b: 'bB.svg', n: 'bN.svg', p: 'bP.svg'
   };
+  // Função para carregar imagens das peças
   function loadPieceImages(callback) {
     let loaded = 0, total = Object.keys(pieceFiles).length;
     for (const [piece, file] of Object.entries(pieceFiles)) {
@@ -93,6 +110,7 @@ window.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  // Função para desenhar o tabuleiro e as peças
   function drawBoard(evt) {
     const size = canvas.width;
     const square = size / 8;
@@ -123,6 +141,7 @@ window.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  // Evento de início do arrasto de peça
   canvas.addEventListener('mousedown', function (evt) {
     const rect = canvas.getBoundingClientRect();
     const size = canvas.width;
@@ -136,6 +155,7 @@ window.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  // Evento de movimento do mouse durante arrasto
   canvas.addEventListener('mousemove', function (evt) {
     if (dragging) {
       drawBoard(evt);
@@ -143,6 +163,7 @@ window.addEventListener('DOMContentLoaded', () => {
   });
 
 
+  // Evento de soltura da peça (drop)
   canvas.addEventListener('mouseup', function (evt) {
     if (!dragging) return;
     const rect = canvas.getBoundingClientRect();
@@ -269,6 +290,7 @@ window.addEventListener('DOMContentLoaded', () => {
   });
 
   // Verifica se o movimento é um roque válido
+  // Verifica se o movimento é um roque válido
   function isCastlingMove(sy, sx, dy, dx) {
     // Branco
     if (sy === 7 && sx === 4 && dy === 7 && (dx === 6 || dx === 2) && board[sy][sx] === 'K') {
@@ -286,6 +308,7 @@ window.addEventListener('DOMContentLoaded', () => {
   }
 
   // Função para promover peão ao chegar na última fileira
+  // Função para promover peão ao chegar na última fileira
   function promoverPeao(y, x) {
     // Simples: sempre promove para rainha
     board[y][x] = board[y][x] === 'P' ? 'Q' : 'q';
@@ -294,18 +317,20 @@ window.addEventListener('DOMContentLoaded', () => {
   }
 
   // Função de validação de movimento (regras básicas)
-  // ...existing code...
   // As funções isValidMove e isPathClear agora estão em chess-rules.js para facilitar testes.
 
+  // Carrega imagens das peças e redimensiona tabuleiro
   loadPieceImages(resizeBoard);
 
 
+  // Handler para criar novo jogo
   document.getElementById('create-game').onclick = () => {
     const hours = parseInt(document.getElementById('hours').value) || 0;
     const minutes = parseInt(document.getElementById('minutes').value) || 0;
     const seconds = parseInt(document.getElementById('seconds').value) || 0;
     socket.send(JSON.stringify({ action: 'create', time: { hours, minutes, seconds } }));
   };
+  // Handler para entrar em jogo existente
   document.getElementById('join-game').onclick = () => {
     const link = document.getElementById('join-link').value.trim();
     if (link) {
@@ -313,6 +338,7 @@ window.addEventListener('DOMContentLoaded', () => {
     }
   };
 
+  // Handler de mensagens recebidas do servidor
   socket.onmessage = (event) => {
     const msg = JSON.parse(event.data);
     if (msg.action === 'invite-link') {
