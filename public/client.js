@@ -110,6 +110,10 @@ window.addEventListener('DOMContentLoaded', () => {
       }
     }
 
+    // Variáveis para feedback visual de erro
+    let errorHighlight = null;
+    let errorTimeout = null;
+
     // Função para desenhar o tabuleiro e as peças
     function drawBoard(evt) {
       const size = canvas.width;
@@ -117,7 +121,12 @@ window.addEventListener('DOMContentLoaded', () => {
       ctx.clearRect(0, 0, size, size);
       for (let y = 0; y < 8; y++) {
         for (let x = 0; x < 8; x++) {
-          ctx.fillStyle = (x + y) % 2 === 0 ? boardTheme.light : boardTheme.dark;
+          // Destaca casas de erro se necessário
+          if (errorHighlight && (errorHighlight.sy === y && errorHighlight.sx === x || errorHighlight.dy === y && errorHighlight.dx === x)) {
+            ctx.fillStyle = '#ffcccc';
+          } else {
+            ctx.fillStyle = (x + y) % 2 === 0 ? boardTheme.light : boardTheme.dark;
+          }
           ctx.fillRect(x * square, y * square, square, square);
           // Desenhar peça SVG se houver
           const piece = board[y][x];
@@ -176,11 +185,20 @@ window.addEventListener('DOMContentLoaded', () => {
         // Só permite mover se for o turno correto
         const piece = board[sy][sx];
         const isWhite = piece === piece.toUpperCase();
+        const errorDiv = document.getElementById('error-message');
         if ((turn === 'w' && !isWhite) || (turn === 'b' && isWhite)) {
+          errorDiv.textContent = 'Movimento inválido: não é o turno dessa cor.';
+          errorHighlight = { sy, sx, dy: y, dx: x };
+          drawBoard();
+          clearTimeout(errorTimeout);
+          errorTimeout = setTimeout(() => {
+            errorDiv.textContent = '';
+            errorHighlight = null;
+            drawBoard();
+          }, 1500);
           dragging = null;
           dragPiece = null;
           dragOffset = null;
-          drawBoard();
           return;
         }
         // Verifica se é captura en passant
@@ -215,11 +233,18 @@ window.addEventListener('DOMContentLoaded', () => {
           }
           const isWhite = board[sy][sx] === board[sy][sx].toUpperCase();
           if ((isWhite && window.isKingInCheck(boardCopy, true)) || (!isWhite && window.isKingInCheck(boardCopy, false))) {
-            alert('Movimento ilegal: não pode deixar o próprio rei em xeque!');
+            errorDiv.textContent = 'Movimento ilegal: não pode deixar o próprio rei em xeque!';
+            errorHighlight = { sy, sx, dy: y, dx: x };
+            drawBoard();
+            clearTimeout(errorTimeout);
+            errorTimeout = setTimeout(() => {
+              errorDiv.textContent = '';
+              errorHighlight = null;
+              drawBoard();
+            }, 1500);
             dragging = null;
             dragPiece = null;
             dragOffset = null;
-            drawBoard();
             return;
           }
           // Movimento é legal, aplica de verdade
@@ -280,6 +305,16 @@ window.addEventListener('DOMContentLoaded', () => {
             }, 100);
           }
           turn = turn === 'w' ? 'b' : 'w';
+        } else {
+          errorDiv.textContent = 'Movimento inválido: não permitido pelas regras.';
+          errorHighlight = { sy, sx, dy: y, dx: x };
+          drawBoard();
+          clearTimeout(errorTimeout);
+          errorTimeout = setTimeout(() => {
+            errorDiv.textContent = '';
+            errorHighlight = null;
+            drawBoard();
+          }, 1500);
         }
       }
 
