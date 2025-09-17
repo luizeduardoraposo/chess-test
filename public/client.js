@@ -1,7 +1,6 @@
 
+// Evento principal: inicializa o cliente quando o DOM está pronto
 window.addEventListener('DOMContentLoaded', () => {
-  // Evento principal: inicializa o cliente quando o DOM está pronto
-  window.addEventListener('DOMContentLoaded', () => {
     // WebSocket deve ser declarado aqui para garantir que está disponível para todos os handlers do DOMContentLoaded
     // Conexão WebSocket para comunicação com o servidor
     const socket = new WebSocket('ws://' + window.location.hostname + ':3001');
