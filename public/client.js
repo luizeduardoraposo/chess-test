@@ -1,12 +1,14 @@
 
 
 window.addEventListener('DOMContentLoaded', () => {
+  // WebSocket deve ser declarado aqui para garantir que está disponível para todos os handlers do DOMContentLoaded
+  const socket = new WebSocket('ws://' + window.location.hostname + ':3001');
   // Drag and drop de peças
   let dragging = null;
   let dragOffset = null;
   let dragPiece = null;
 
-  const socket = new WebSocket('ws://' + window.location.hostname + ':3001');
+
 
   const boardThemes = [
     { name: 'Clássico', light: '#f0d9b5', dark: '#b58863' },
@@ -297,6 +299,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
   loadPieceImages(resizeBoard);
 
+
   document.getElementById('create-game').onclick = () => {
     const hours = parseInt(document.getElementById('hours').value) || 0;
     const minutes = parseInt(document.getElementById('minutes').value) || 0;
@@ -319,27 +322,9 @@ window.addEventListener('DOMContentLoaded', () => {
   };
 
   // ...restante da lógica do jogo, movimentação, timer, etc...
+
+
 });
 
-document.getElementById('create-game').onclick = () => {
-  const hours = parseInt(document.getElementById('hours').value) || 0;
-  const minutes = parseInt(document.getElementById('minutes').value) || 0;
-  const seconds = parseInt(document.getElementById('seconds').value) || 0;
-  socket.send(JSON.stringify({ action: 'create', time: { hours, minutes, seconds } }));
-};
-document.getElementById('join-game').onclick = () => {
-  const link = document.getElementById('join-link').value.trim();
-  if (link) {
-    socket.send(JSON.stringify({ action: 'join', link }));
-  }
-};
-
-socket.onmessage = (event) => {
-  const msg = JSON.parse(event.data);
-  if (msg.action === 'invite-link') {
-    document.getElementById('invite-link').textContent = 'Link: ' + msg.link;
-  }
-  // ...outras mensagens do servidor...
-};
 
 // ...restante da lógica do jogo, movimentação, timer, etc...
