@@ -6,13 +6,14 @@ const fs = require('fs');
 const path = require('path');
 
 const server = http.createServer((req, res) => {
-  let filePath = './public' + (req.url === '/' ? '/index.html' : req.url);
+  let filePath = path.join(__dirname, 'public', req.url === '/' ? 'index.html' : req.url);
   const ext = path.extname(filePath);
   let contentType = 'text/html';
   if (ext === '.js') contentType = 'application/javascript';
   if (ext === '.css') contentType = 'text/css';
   fs.readFile(filePath, (err, content) => {
     if (err) {
+      console.error(`[404] File not found: ${filePath}`);
       res.writeHead(404);
       res.end('Not found');
     } else {
@@ -26,14 +27,20 @@ const wss = new WebSocket.Server({ server });
 const games = {};
 
 wss.on('connection', ws => {
+          games[gameId].players.forEach(p => p.send(JSON.stringify({ action: 'start', gameId })));
   ws.on('message', message => {
     let data;
-    try { data = JSON.parse(message); } catch { return; }
+    try { data = JSON.parse(message); } catch (err) {
+      console.error('Invalid JSON received:', message);
+      ws.send(JSON.stringify({ action: 'error', message: 'Mensagem inválida.' }));
+      return;
+    }
     if (data.action === 'create') {
       const gameId = uuidv4();
       games[gameId] = { players: [ws], time: data.time };
       ws.gameId = gameId;
       ws.send(JSON.stringify({ action: 'invite-link', link: `ws://${server.address().address || 'localhost'}:3001?game=${gameId}` }));
+      console.log(`Game created: ${gameId}`);
     } else if (data.action === 'join' && data.link) {
       const match = data.link.match(/game=([\w-]+)/);
       if (match) {
@@ -43,6 +50,7 @@ wss.on('connection', ws => {
           ws.gameId = gameId;
           // Notificar ambos jogadores
           games[gameId].players.forEach(p => p.send(JSON.stringify({ action: 'start', gameId })));
+          console.log(`Player joined game: ${gameId}`);
         } else {
           ws.send(JSON.stringify({ action: 'error', message: 'Partida não encontrada ou cheia.' }));
         }
