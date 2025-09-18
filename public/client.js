@@ -234,11 +234,10 @@ window.addEventListener('DOMContentLoaded', () => {
           opt.value = i;
           opt.textContent = theme.name;
           pieceThemeSelect.appendChild(opt);
-          dragOffset = null;
-          return;
-        }
+        });
+
         // Movimento é legal, aplica de verdade
-  if (isCastlingMove(sy, sx, y, x)) {
+        if (isCastlingMove(sy, sx, y, x)) {
           if (board[sy][sx] === 'K' && sy === 7 && sx === 4 && y === 7 && (x === 6 || x === 2)) {
             if (x === 6) {
               board[7][6] = 'K'; board[7][5] = 'R'; board[7][4] = ''; board[7][7] = '';
