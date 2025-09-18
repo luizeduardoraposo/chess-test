@@ -45,7 +45,7 @@ function isCheckmate(board, isWhite) {
               // Se for o rei, só permite mover para casas não atacadas
               if (piece.toLowerCase() === 'k') {
                 // Simula o movimento do rei
-                  const copy = board.map(row => [...row]);
+                const copy = board.map(row => [...row]);
                 copy[dy][dx] = copy[sy][sx];
                 copy[sy][sx] = '';
                 // O rei está em (dy, dx) agora
