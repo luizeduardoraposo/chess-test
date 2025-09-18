@@ -195,45 +195,45 @@ window.addEventListener('DOMContentLoaded', () => {
           errorHighlight = null;
           drawBoard();
         }, 1500);
-          // WebSocket para comunicação com o servidor
-          const socket = new WebSocket('ws://' + window.location.hostname + ':3001');
-          // Drag and drop de peças
-          let dragging = null, dragOffset = null, dragPiece = null;
+        // WebSocket para comunicação com o servidor
+        const socket = new WebSocket('ws://' + window.location.hostname + ':3001');
+        // Drag and drop de peças
+        let dragging = null, dragOffset = null, dragPiece = null;
 
-          // Temas de tabuleiro disponíveis
-          const boardThemes = [
-            { name: 'Clássico', light: '#f0d9b5', dark: '#b58863' },
-            { name: 'Azul', light: '#aadfff', dark: '#005577' },
-            { name: 'Verde', light: '#b6e3b6', dark: '#3a5d3a' },
-            { name: 'Escuro', light: '#444', dark: '#222' }
-          ];
-          // Temas de peças disponíveis (apenas SVG)
-          const pieceThemes = [
-            { name: 'SVG', set: 'svg' }
-          ];
+        // Temas de tabuleiro disponíveis
+        const boardThemes = [
+          { name: 'Clássico', light: '#f0d9b5', dark: '#b58863' },
+          { name: 'Azul', light: '#aadfff', dark: '#005577' },
+          { name: 'Verde', light: '#b6e3b6', dark: '#3a5d3a' },
+          { name: 'Escuro', light: '#444', dark: '#222' }
+        ];
+        // Temas de peças disponíveis (apenas SVG)
+        const pieceThemes = [
+          { name: 'SVG', set: 'svg' }
+        ];
 
-          // Tema selecionado
-          let boardTheme = boardThemes[0], pieceTheme = pieceThemes[0];
+        // Tema selecionado
+        let boardTheme = boardThemes[0], pieceTheme = pieceThemes[0];
 
-          // Elementos DOM
-          const boardThemeSelect = document.getElementById('board-theme');
-          const pieceThemeSelect = document.getElementById('piece-theme');
-          const canvas = document.getElementById('chessboard');
-          const ctx = canvas.getContext('2d');
+        // Elementos DOM
+        const boardThemeSelect = document.getElementById('board-theme');
+        const pieceThemeSelect = document.getElementById('piece-theme');
+        const canvas = document.getElementById('chessboard');
+        const ctx = canvas.getContext('2d');
 
-          // Preenche selects de tema do tabuleiro
-          boardThemes.forEach((theme, i) => {
-            const opt = document.createElement('option');
-            opt.value = i;
-            opt.textContent = theme.name;
-            boardThemeSelect.appendChild(opt);
-          });
-          // Preenche selects de tema das peças
-          pieceThemes.forEach((theme, i) => {
-            const opt = document.createElement('option');
-            opt.value = i;
-            opt.textContent = theme.name;
-            pieceThemeSelect.appendChild(opt);
+        // Preenche selects de tema do tabuleiro
+        boardThemes.forEach((theme, i) => {
+          const opt = document.createElement('option');
+          opt.value = i;
+          opt.textContent = theme.name;
+          boardThemeSelect.appendChild(opt);
+        });
+        // Preenche selects de tema das peças
+        pieceThemes.forEach((theme, i) => {
+          const opt = document.createElement('option');
+          opt.value = i;
+          opt.textContent = theme.name;
+          pieceThemeSelect.appendChild(opt);
           dragOffset = null;
           return;
         }
