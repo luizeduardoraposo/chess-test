@@ -27,7 +27,7 @@ const wss = new WebSocket.Server({ server });
 const games = {};
 
 wss.on('connection', ws => {
-          games[gameId].players.forEach(p => p.send(JSON.stringify({ action: 'start', gameId })));
+  games[gameId].players.forEach(p => p.send(JSON.stringify({ action: 'start', gameId })));
   ws.on('message', message => {
     let data;
     try { data = JSON.parse(message); } catch (err) {
